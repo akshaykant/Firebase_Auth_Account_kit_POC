@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "437436477505",
+    "firebase_url": "https://poclogin-b4c4c.firebaseio.com",
+    "project_id": "poclogin-b4c4c",
+    "storage_bucket": "poclogin-b4c4c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:437436477505:android:b02af9da9c0eb4b0",
+        "android_client_info": {
+          "package_name": "com.akshaykant.com.poc_login"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "437436477505-durotkfvnrscaa56vpsj100s1gukvqk0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDuQuHnU8hgwoI-fnm_-Lrm3uhf5VhKy64"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "437436477505-durotkfvnrscaa56vpsj100s1gukvqk0.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

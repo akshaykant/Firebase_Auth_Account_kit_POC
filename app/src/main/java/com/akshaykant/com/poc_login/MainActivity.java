@@ -12,6 +12,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.akshaykant.com.poc_login.databinding.ActivityMainBinding;
+import com.facebook.AccessToken;
+import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
+import com.facebook.login.LoginResult;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -23,6 +28,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
@@ -46,7 +52,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     // Best Practices: attach AuthStateListener in onResume() and detach in onPause()
     private FirebaseAuth.AuthStateListener mAuthStateListener;
 
+    /*---------------------------FB----------------------------------*/
+    private CallbackManager mCallbackManager;
 
+    /*---------------------------/FB----------------------------------*/
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -92,7 +101,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             user.getProviderData() + " " +
                             user.getProviders() + " " +
                             user.getUid() + " " +
-                            user.getToken(true) );
+                            user.getToken(true));
 
                 } else {
                     // User is signed out
@@ -101,6 +110,34 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         };
 
+
+    /*---------------------------FB----------------------------------*/
+        // [START initialize_fblogin]
+        // Initialize Facebook Login button
+        mCallbackManager = CallbackManager.Factory.create();
+
+        binding.btnFacebookLogin.setReadPermissions("email", "public_profile", "user_birthday", "user_location");
+        binding.btnFacebookLogin.registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
+            @Override
+            public void onSuccess(LoginResult loginResult) {
+                Log.d(TAG, "facebook:onSuccess:" + loginResult);
+                handleFacebookAccessToken(loginResult.getAccessToken());
+            }
+
+            @Override
+            public void onCancel() {
+                Log.d(TAG, "facebook:onCancel");
+
+            }
+
+            @Override
+            public void onError(FacebookException error) {
+                Log.d(TAG, "facebook:onError", error);
+
+            }
+        });
+        // [END initialize_fblogin]
+    /*---------------------------/FB----------------------------------*/
 
     }
 
@@ -162,6 +199,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
             handleSignInResult(result);
         }
+
+
+    /*---------------------------FB----------------------------------*/
+        // Pass the activity result back to the Facebook SDK
+        mCallbackManager.onActivityResult(requestCode, resultCode, data);
+     /*---------------------------/FB----------------------------------*/
     }
 
     private void handleSignInResult(GoogleSignInResult result) {
@@ -172,15 +215,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             firebaseAuthWithGoogle(account);
 
             Log.d(TAG, "onAuthStateChanged: GOOGLE response:" + account.getId() + " " +
-            account.getEmail() + " " +
-            account.getDisplayName() + " " +
-            account.getGivenName() + " " +
-            account.getFamilyName() + " " +
-            account.getPhotoUrl() + " " +
-            account.getIdToken() + " " +
-            account.getServerAuthCode() + " " +
-            account.getAccount() + " " +
-            account.getGrantedScopes());
+                    account.getEmail() + " " +
+                    account.getDisplayName() + " " +
+                    account.getGivenName() + " " +
+                    account.getFamilyName() + " " +
+                    account.getPhotoUrl() + " " +
+                    account.getIdToken() + " " +
+                    account.getServerAuthCode() + " " +
+                    account.getAccount() + " " +
+                    account.getGrantedScopes());
 
         } else {
             // Google Sign In failed, update UI appropriately
@@ -240,4 +283,37 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             mProgressDialog.hide();
         }
     }
+
+    /*---------------------------FB----------------------------------*/
+    // [START auth_with_facebook]
+    private void handleFacebookAccessToken(AccessToken token) {
+        Log.d(TAG, "handleFacebookAccessToken:" + token);
+        // [START_EXCLUDE silent]
+        showProgressDialog();
+        // [END_EXCLUDE]
+
+        AuthCredential credential = FacebookAuthProvider.getCredential(token.getToken());
+        mFirebaseAuth.signInWithCredential(credential)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        Log.d(TAG, "signInWithCredential:onComplete:" + task.isSuccessful());
+
+                        // If sign in fails, display a message to the user. If sign in succeeds
+                        // the auth state listener will be notified and logic to handle the
+                        // signed in user can be handled in the listener.
+                        if (!task.isSuccessful()) {
+                            Log.w(TAG, "signInWithCredential", task.getException());
+                            Toast.makeText(MainActivity.this, "Authentication failed.",
+                                    Toast.LENGTH_SHORT).show();
+                        }
+
+                        // [START_EXCLUDE]
+                        hideProgressDialog();
+                        // [END_EXCLUDE]
+                    }
+                });
+    }
+    // [END auth_with_facebook]
+    /*---------------------------/FB----------------------------------*/
 }

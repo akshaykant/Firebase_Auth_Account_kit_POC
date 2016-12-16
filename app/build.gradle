@@ -20,6 +20,11 @@ android {
     dataBinding {
         enabled = true
     }
+
+    defaultConfig {
+        // Optional: Specify the language(s) your app supports. FB
+        resConfigs "en_US"
+    }
 }
 
 repositories {
@@ -39,6 +44,8 @@ dependencies {
     compile 'com.android.support:design:25.0.1'
 
     compile 'com.facebook.android:facebook-android-sdk:[4,5)'
+
+    compile 'com.facebook.android:account-kit-sdk:4.+'
 
 }
 apply plugin: 'com.google.gms.google-services'

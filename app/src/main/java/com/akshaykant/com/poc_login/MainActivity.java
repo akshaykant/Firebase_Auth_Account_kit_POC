@@ -43,6 +43,10 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 
+//Facebook Imports
+import com.facebook.FacebookSdk;
+import com.facebook.appevents.AppEventsLogger;
+
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, GoogleApiClient.OnConnectionFailedListener {
 
     ActivityMainBinding binding;
@@ -67,7 +71,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private CallbackManager mCallbackManager;
 
 
-    private static final int RC_FB_SIGN_IN = 8001;
+    private static final int RC_FB_SIGN_IN = FacebookSdk.getCallbackRequestCodeOffset();;
 
     /*---------------------------/FB----------------------------------*/
 
@@ -80,14 +84,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
 
-        //setting the text of Google Button
-        setGoogleButtonText(binding.btnGoogleLogin, "Connect with Google");
 
         binding.btnGoogleLogin.setOnClickListener(this);
+        binding.customBtnGoogleLogin.setOnClickListener(this);
 
     /*---------------------------ACCOUNT KIT----------------------------------*/
         binding.btnMobileLogin.setOnClickListener(this);
     /*---------------------------/ACCOUNT KIT----------------------------------*/
+    /*---------------------------FB----------------------------------*/
+        binding.customBtnFacebookLogin.setOnClickListener(this);
+    /*---------------------------/FB----------------------------------*/
 
         // Configure sign-in to request the user's ID, email address, and basic
         // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
@@ -164,25 +170,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
-    //setting the text of Google Button
-    protected void setGoogleButtonText(SignInButton signInButton,
-                                       String buttonText) {
-        for (int i = 0; i < signInButton.getChildCount(); i++) {
-            View v = signInButton.getChildAt(i);
-
-            if (v instanceof TextView) {
-                TextView tv = (TextView) v;
-                //tv.setTextSize(15);
-                //tv.setTypeface(null, Typeface.NORMAL);
-                tv.setText(buttonText);
-                return;
-            }
-        }
-    }
 
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
+            case R.id.custom_btn_google_login:
+                binding.btnGoogleLogin.performClick();
+
+
             case R.id.btn_google_login:
                 googleSignIn();
                 break;
@@ -192,6 +187,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 accountKitSmsFlow();
                 break;
     /*---------------------------/ACCOUNT KIT----------------------------------*/
+
+    /*--------------------------FB----------------------------------*/
+            case R.id.custom_btn_facebook_login:
+                binding.btnFacebookLogin.performClick();
+                break;
+    /*---------------------------/FB----------------------------------*/
         }
     }
 
@@ -240,7 +241,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     /*---------------------------ACCOUNT KIT----------------------------------*/
         if (requestCode == RC_ACCOUNT_KIT_SIGN_IN) { // confirm that this response matches your request
             AccountKitLoginResult loginResult = data.getParcelableExtra(AccountKitLoginResult.RESULT_KEY);
-            String toastMessage= "";
+            String toastMessage = "";
             if (loginResult.getError() != null) {
                 toastMessage = loginResult.getError().getErrorType().getMessage();
             } else if (loginResult.wasCancelled()) {
@@ -372,6 +373,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     /*---------------------------/FB----------------------------------*/
 
     /*---------------------------ACCOUNT KIT----------------------------------*/
+
     /**
      * Initializes Facebook Account Kit Sms flow registration.
      */
@@ -390,10 +392,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     /*---------------------------/ACCOUNT KIT----------------------------------*/
 
      /*---------------------------ACCOUNT KIT----------------------------------*/
+
     /**
      * Gets current account from Facebook Account Kit which include user's phone number.
      */
-    private void getAccount(){
+    private void getAccount() {
         AccountKit.getCurrentAccount(new AccountKitCallback<Account>() {
             @Override
             public void onSuccess(final Account account) {
@@ -412,23 +415,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         .show();
 
                 //Firebase Login
-                firebaseAuthWithAccountKit(phoneNumberString+"@eventersapp.com");
+                firebaseAuthWithAccountKit(phoneNumberString + "@eventersapp.com");
             }
 
             @Override
             public void onError(final AccountKitError error) {
-                Log.e("AccountKit",error.toString());
+                Log.e("AccountKit", error.toString());
                 // Handle Error
             }
         });
     }
      /*---------------------------/ACCOUNT KIT----------------------------------*/
 
-    public void firebaseAuthWithAccountKit(final String account_kit_email){
+    public void firebaseAuthWithAccountKit(final String account_kit_email) {
 
         showProgressDialog();
 
-       mFirebaseAuth.signInWithEmailAndPassword(account_kit_email, "eventersapp")
+        mFirebaseAuth.signInWithEmailAndPassword(account_kit_email, "eventersapp")
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
@@ -442,7 +445,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             Toast.makeText(MainActivity.this, "Auth Failed: Account Kit",
                                     Toast.LENGTH_SHORT).show();
 
-                                 createUser(account_kit_email);
+                            createUser(account_kit_email);
 
                         }
 
@@ -453,7 +456,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 });
     }
 
-    public void createUser(String account_kit_email){
+    public void createUser(String account_kit_email) {
         mFirebaseAuth.createUserWithEmailAndPassword(account_kit_email, "eventersapp")
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override

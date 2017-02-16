@@ -21,11 +21,11 @@
             android:name="com.facebook.sdk.ApplicationId"
             android:value="@string/facebook_app_id" />
 
-        <meta-data android:name="com.facebook.accountkit.ApplicationName"
-            android:value="@string/app_name" />
+         <meta-data android:name="com.facebook.accountkit.ApplicationName"
+             android:value="@string/app_name" />
 
-        <meta-data android:name="com.facebook.accountkit.ClientToken"
-            android:value="@string/ACCOUNT_KIT_CLIENT_TOKEN" />
+         <meta-data android:name="com.facebook.accountkit.ClientToken"
+             android:value="@string/ACCOUNT_KIT_CLIENT_TOKEN" />
 
         <activity android:name=".MainActivity">
             <intent-filter>
@@ -35,8 +35,18 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".LandingPageActivity"/>
+        <activity android:name=".LandingPageActivity" />
 
+        <!-- Facebook Activity for Connect by Facebook-->
+        <activity
+            android:name="com.facebook.FacebookActivity"
+            android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
+            android:label="@string/app_name" />
+
+     <!--   Enable Chrome Custom Tabs by adding an intent filter to your manifest and a fb_login_protocol_scheme
+        to your strings.xml file. When you enable Chrome Custom Tabs, the SDK presents the login dialog in a
+        Chrome Custom Tab instead of a WebView when the Facebook app is not installed. As a result,
+        people do not have to enter their credentials again if they are already logged into Facebook in their Chrome browser.-->
 
         <activity
             android:name="com.facebook.CustomTabActivity"
